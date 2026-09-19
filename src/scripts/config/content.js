@@ -35,3 +35,10 @@ export const workflowSteps = [
     details: "Export interpretable outputs for lab validation and follow-up analysis."
   }
 ];
+
+export const aiModes = [
+  {
+    value: "local-free-ai",
+    label: "Local Free AI (no API key)"
+  }
+];

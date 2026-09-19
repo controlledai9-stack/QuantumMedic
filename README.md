@@ -29,4 +29,13 @@ This project scope supports research workflows and is not a clinical decision sy
 - `src/scripts/config/content.js` stores UI content/config data.
 - `src/scripts/ui/render.js` handles UI rendering logic.
 - `src/scripts/ui/renderWorkflow.js` renders the dataset-upload and model-run workflow section.
+- `src/scripts/ui/renderAnalyzer.js` renders dataset analysis UI and report output.
+- `src/scripts/services/analyzeDataset.js` provides format-agnostic dataset analysis with a free local AI-style insight engine.
 - `src/scripts/main.js` wires data and rendering into the app entry point.
+
+## Dataset Analysis Support
+
+- Upload supports any file format through a universal file input.
+- Structured text formats (`csv`, `tsv`, `json`, `xml`, `txt`, etc.) get parsed metrics.
+- Unknown/binary formats fall back to byte-sample analysis.
+- Free AI mode is local and requires no API key.
