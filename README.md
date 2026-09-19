@@ -28,4 +28,5 @@ This project scope supports research workflows and is not a clinical decision sy
 - `src/styles/main.css` provides responsive visual styling.
 - `src/scripts/config/content.js` stores UI content/config data.
 - `src/scripts/ui/render.js` handles UI rendering logic.
+- `src/scripts/ui/renderWorkflow.js` renders the dataset-upload and model-run workflow section.
 - `src/scripts/main.js` wires data and rendering into the app entry point.
