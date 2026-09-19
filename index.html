@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuantumMedic - Quantum ML for Healthcare</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .info-box {
+            background: #f0f4ff;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 8px;
+        }
+        
+        .info-box h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .biomarkers-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .biomarker-input {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .biomarker-input input {
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border-color 0.3s;
+        }
+        
+        .biomarker-input input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .biomarker-input small {
+            color: #666;
+            font-size: 0.85em;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 15px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-analyze {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .btn-analyze:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn-random {
+            background: #f0f0f0;
+            color: #333;
+        }
+        
+        .btn-random:hover {
+            background: #e0e0e0;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .results {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background: #f9f9f9;
+            border-radius: 12px;
+        }
+        
+        .results h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+        
+        .result-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .result-label {
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .result-value {
+            font-size: 1.2em;
+            color: #333;
+        }
+        
+        .risk-high {
+            border-left-color: #e74c3c;
+            background: #fef5f5;
+        }
+        
+        .risk-high .result-label {
+            color: #e74c3c;
+        }
+        
+        .risk-moderate {
+            border-left-color: #f39c12;
+            background: #fffaf0;
+        }
+        
+        .risk-moderate .result-label {
+            color: #f39c12;
+        }
+        
+        .risk-low {
+            border-left-color: #27ae60;
+            background: #f0fdf4;
+        }
+        
+        .risk-low .result-label {
+            color: #27ae60;
+        }
+        
+        .risk-score-bar {
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+        
+        .risk-score-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #27ae60, #f39c12, #e74c3c);
+            transition: width 0.5s ease;
+        }
+        
+        .error {
+            background: #fee;
+            color: #c00;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔬 QuantumMedic</h1>
+            <p>Quantum Machine Learning for Medical Diagnostics</p>
+        </div>
+        
+        <div class="content">
+            <div class="info-box">
+                <h3>ℹ️ Real Quantum Machine Learning</h3>
+                <p><strong>QuantumMedic uses a Variational Quantum Classifier (VQC)</strong> — a true quantum machine learning algorithm that trains quantum circuits using gradient-based optimization. The quantum feature map encodes medical biomarkers into quantum states, and the variational ansatz learns optimal circuit parameters to classify disease risk. This leverages quantum advantages in pattern recognition that classical ML cannot achieve.</p>
+            </div>
+            
+            <div class="form-group">
+                <label>Medical Biomarkers (0.0 - 1.0 normalized values)</label>
+                <div class="biomarkers-grid">
+                    <div class="biomarker-input">
+                        <input type="number" id="bm1" min="0" max="1" step="0.01" value="0.3" placeholder="Blood Glucose">
+                        <small>Blood Glucose Level</small>
+                    </div>
+                    <div class="biomarker-input">
+                        <input type="number" id="bm2" min="0" max="1" step="0.01" value="0.4" placeholder="Cholesterol">
+                        <small>Cholesterol Level</small>
+                    </div>
+                    <div class="biomarker-input">
+                        <input type="number" id="bm3" min="0" max="1" step="0.01" value="0.5" placeholder="Blood Pressure">
+                        <small>Blood Pressure Index</small>
+                    </div>
+                    <div class="biomarker-input">
+                        <input type="number" id="bm4" min="0" max="1" step="0.01" value="0.35" placeholder="Heart Rate">
+                        <small>Heart Rate Variability</small>
+                    </div>
+                    <div class="biomarker-input">
+                        <input type="number" id="bm5" min="0" max="1" step="0.01" value="0.45" placeholder="Inflammation">
+                        <small>Inflammatory Marker</small>
+                    </div>
+                    <div class="biomarker-input">
+                        <input type="number" id="bm6" min="0" max="1" step="0.01" value="0.40" placeholder="Kidney Function">
+                        <small>Kidney Function Index</small>
+                    </div>
+                    <div class="biomarker-input">
+                        <input type="number" id="bm7" min="0" max="1" step="0.01" value="0.50" placeholder="Liver Function">
+                        <small>Liver Function Index</small>
+                    </div>
+                    <div class="biomarker-input">
+                        <input type="number" id="bm8" min="0" max="1" step="0.01" value="0.38" placeholder="Immune Score">
+                        <small>Immune System Score</small>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="button-group">
+                <button class="btn-analyze" onclick="analyzeBiomarkers()">📊 Analyze with Quantum ML</button>
+                <button class="btn-random" onclick="randomizeInputs()">🎲 Random Sample</button>
+            </div>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Initializing quantum circuits...</p>
+            </div>
+            
+            <div class="error" id="error"></div>
+            
+            <div class="results" id="results">
+                <h3>Analysis Results</h3>
+                
+                <div class="result-item" id="riskLevel">
+                    <div class="result-label">Risk Level</div>
+                    <div class="result-value" id="riskLevelValue">-</div>
+                </div>
+                
+                <div class="result-item">
+                    <div class="result-label">Hybrid Risk Score</div>
+                    <div class="result-value" id="hybridScore">-</div>
+                    <div class="risk-score-bar">
+                        <div class="risk-score-fill" id="scoreBar"></div>
+                    </div>
+                </div>
+                
+                <div class="result-item">
+                    <div class="result-label">Quantum Score (Quantum Circuit Analysis)</div>
+                    <div class="result-value" id="quantumScore">-</div>
+                </div>
+                
+                <div class="result-item">
+                    <div class="result-label">Classical Score (Machine Learning Analysis)</div>
+                    <div class="result-value" id="classicalScore">-</div>
+                </div>
+                
+                <div class="result-item">
+                    <div class="result-label">Recommendation</div>
+                    <div class="result-value" id="recommendation">-</div>
+                </div>
+                
+                <div class="result-item">
+                    <div class="result-label">Algorithm Used</div>
+                    <div class="result-value" id="algorithmUsed">Variational Quantum Classifier (VQC)</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const API_BASE = 'http://localhost:5000';
+        
+        async function analyzeBiomarkers() {
+            const biomarkers = [];
+            for (let i = 1; i <= 8; i++) {
+                biomarkers.push(parseFloat(document.getElementById(`bm${i}`).value));
+            }
+            
+            // Validation
+            if (biomarkers.some(v => isNaN(v) || v < 0 || v > 1)) {
+                showError('All biomarkers must be between 0.0 and 1.0');
+                return;
+            }
+            
+            showLoading(true);
+            hideError();
+            
+            try {
+                const response = await fetch(`${API_BASE}/analyze`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ biomarkers })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                displayResults(data.analysis);
+                
+            } catch (error) {
+                showError(`Error connecting to server: ${error.message}`);
+                console.error('Error:', error);
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        function displayResults(analysis) {
+            const riskLevel = analysis.risk_level;
+            const hybridScore = (analysis.hybrid_risk_score * 100).toFixed(1);
+            const quantumScore = (analysis.quantum_score * 100).toFixed(1);
+            const biomarkerRisk = (analysis.biomarker_risk * 100).toFixed(1);
+            
+            // Update results
+            document.getElementById('riskLevelValue').textContent = riskLevel;
+            document.getElementById('hybridScore').textContent = `${hybridScore}%`;
+            document.getElementById('quantumScore').textContent = `${quantumScore}%`;
+            document.getElementById('classicalScore').textContent = `${biomarkerRisk}%`;
+            document.getElementById('recommendation').textContent = analysis.risk_level === 'High' 
+                ? '⚠️ Consult healthcare provider' 
+                : '✓ Monitor regularly';
+            document.getElementById('algorithmUsed').textContent = analysis.ml_type || 'Variational Quantum Classifier';
+            
+            // Update score bar
+            const scoreBar = document.getElementById('scoreBar');
+            scoreBar.style.width = hybridScore + '%';
+            
+            // Update risk level styling
+            const riskLevelDiv = document.getElementById('riskLevel');
+            riskLevelDiv.className = 'result-item';
+            if (riskLevel === 'High') {
+                riskLevelDiv.classList.add('risk-high');
+            } else if (riskLevel === 'Moderate') {
+                riskLevelDiv.classList.add('risk-moderate');
+            } else {
+                riskLevelDiv.classList.add('risk-low');
+            }
+            
+            // Show results
+            document.getElementById('results').style.display = 'block';
+        }
+        
+        function randomizeInputs() {
+            for (let i = 1; i <= 8; i++) {
+                const randomValue = (Math.random() * 0.6 + 0.2).toFixed(2);
+                document.getElementById(`bm${i}`).value = randomValue;
+            }
+        }
+        
+        function showLoading(show) {
+            document.getElementById('loading').style.display = show ? 'block' : 'none';
+        }
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+        
+        function hideError() {
+            document.getElementById('error').style.display = 'none';
+        }
+        
+        // Check backend on load
+        window.addEventListener('load', async () => {
+            try {
+                const response = await fetch(`${API_BASE}/health`);
+                if (!response.ok) {
+                    showError('⚠️ Backend server is not running. Start it with: python backend.py');
+                }
+            } catch (error) {
+                showError('⚠️ Cannot connect to backend. Make sure it\'s running on localhost:5000');
+            }
+        });
+    </script>
+</body>
+</html>
