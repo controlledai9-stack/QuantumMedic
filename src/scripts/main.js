@@ -36,7 +36,7 @@ if (app) {
 
       try {
         const report = await analyzeDataset(file, selectedMode.label);
-        result.innerHTML = renderAnalysisResult(report);
+        renderAnalysisResult(result, report);
       } catch {
         result.textContent = "Analysis failed for this file. Try another dataset.";
       }
